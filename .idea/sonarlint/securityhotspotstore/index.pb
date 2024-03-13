@@ -43,3 +43,5 @@ o
 ?src/main/java/org/example/controller/TransactionController.java,d\9\d92dfc7d783e45c40326c41e43fc412e0b2c9c8c
 i
 9src/main/java/org/example/service/TransactionService.java,4\d\4df16d873c814410bc25ba12f4e9a3f1c45e6fe6
+h
+8src/main/java/org/example/repository/CardRepository.java,f\c\fc989b731cd1d4bd3fe45fd3b1e5fb7677e5bb1c

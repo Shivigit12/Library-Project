@@ -1,6 +1,8 @@
 package org.example.controller;
 
-import org.example.entity.Transaction;
+
+import org.example.exception.CardNotFoundException;
+import org.example.exception.TransactionException;
 import org.example.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,7 +19,7 @@ public class TransactionController {
     private TransactionService transactionService;
 
     @GetMapping("/issueBook/{bookId}, {cardId}")
-    public ResponseEntity issueBook(@PathVariable int bookId, @PathVariable int cardId) {
+    public ResponseEntity<?> issueBook(@PathVariable int bookId, @PathVariable int cardId) throws TransactionException, CardNotFoundException {
         transactionService.issueBooks(bookId, cardId);
         return new ResponseEntity<>("Book has been issued",HttpStatus.OK);
     }
