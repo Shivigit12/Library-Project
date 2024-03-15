@@ -14,7 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-
+import java.util.List;
+import java.util.Optional;
 
 
 import static org.example.entity.CardStatus.DEACTIVATED;
@@ -83,5 +84,19 @@ public class TransactionService {
     public Transaction getTransactionDetails(int id) throws TransactionException {
         return transactionRepository.findById(id)
                 .orElseThrow(()-> new TransactionException("Transaction id is not found"));
+    }
+
+    public List<Transaction> getDetailsByBookId(int bookId) {
+        List<Transaction> transactionList;
+        Optional<Book> book = bookRepository.findById(bookId);
+        transactionList = transactionRepository.findByBook(book);
+        return transactionList;
+    }
+
+    public List<Transaction> getDetailsByCardId(int cardId) {
+        List<Transaction> transactionList;
+        Optional<Card> card = cardRepository.findById(cardId);
+        transactionList = transactionRepository.findByCard(card);
+        return transactionList;
     }
 }
