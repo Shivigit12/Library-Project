@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import org.example.dto.CreateStudentRequest;
 import org.example.entity.Student;
 import org.example.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,16 +17,21 @@ public class StudentController {
     StudentService studentService;
 
     @PostMapping("/create")
-    public ResponseEntity createStudent(@RequestBody Student student) {
-        if(student == null) {
+    public ResponseEntity createStudent(@RequestBody CreateStudentRequest createStudentRequest) {
+        if(createStudentRequest == null) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        } else if(studentService.exists(student.getEmail())) {
+        } else if(studentService.exists(createStudentRequest.getContact())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Student already exists");
         }
-        studentService.create(student);
+        studentService.create(createStudentRequest);
         return new ResponseEntity<>("student created", HttpStatus.OK);
     }
-    @GetMapping("/getStudents")
+    @GetMapping("/getStudent/{studentId}")
+    public ResponseEntity<Student> getStudent(@PathVariable int studentId) {
+        Student student = studentService.get(studentId);
+        return new ResponseEntity<>(student, HttpStatus.OK);
+    }
+    @GetMapping("/getAllStudents")
     public List<Student> getAllStudents() {
         return studentService.getAll();
     }

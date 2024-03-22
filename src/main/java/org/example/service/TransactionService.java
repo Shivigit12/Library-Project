@@ -1,102 +1,147 @@
 package org.example.service;
-
-import org.example.entity.Book;
-import org.example.entity.Card;
-
-import org.example.entity.Transaction;
-import org.example.exception.CardNotFoundException;
-import org.example.exception.TransactionException;
-import org.example.repository.BookRepository;
-import org.example.repository.CardRepository;
+import org.example.dto.SearchBookRequest;
+import org.example.entity.*;
 import org.example.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
+
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 
-import static org.example.entity.CardStatus.DEACTIVATED;
+
 
 @Service
 public class TransactionService {
+
     @Autowired
-    BookRepository bookRepository;
-    @Autowired
-    CardRepository cardRepository;
+    StudentService studentService;
     @Autowired
     TransactionRepository transactionRepository;
+    @Autowired
+    BookService bookService;
+
+    @Value("${student.issue.max_books}")
+    private int maxBooksForIssuance;
+    @Value("${student.issue.number_of_days}")
+    private int numberOfDaysForIssuance;
 
 
-    public void issueBooks(int bookId, int cardId) throws TransactionException, CardNotFoundException {
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(()-> new TransactionException("Book is not found"));
 
 
-        Card card = cardRepository.findById(cardId)
-        .orElseThrow(()-> new TransactionException("card id not found"));
-        if(card.getCardStatus() == DEACTIVATED)
-            throw new CardNotFoundException("Card is not active");
+    public String issueBooks(String bookName, int studentId) throws Exception {
+        List<Book> bookList;
 
-
-        Transaction transaction = new Transaction();
-        transaction.setBook(book);
-        transaction.setIssued(true);
-        transaction.setCard(card);
-        transaction.setTransactionDate(LocalDate.now());
-        book.setDueDate(book, 14);
-        transaction.setFineAmount(200);
-        transaction.setReturned(false);
-        transaction.setStatus("book is issued");
-        transactionRepository.save(transaction);
-
-        book.setAvailable(false);
-
-    }
-
-    public void returnBook(int bookId, int cardId) throws TransactionException, CardNotFoundException {
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(()-> new TransactionException("Book is not found"));
-        Card card = cardRepository.findById(cardId)
-                .orElseThrow(()-> new TransactionException("card id not found"));
-        if(card.getCardStatus() == DEACTIVATED)
-            throw new CardNotFoundException("Card is not active");
-        book.setAvailable(true);
-        LocalDate today = LocalDate.now();
-
-        Transaction transaction = new Transaction();
-        if(today.isAfter(transaction.getBookDueDate())) {
-            int daysOverDue = (int) (today.toEpochDay() - transaction.getBookDueDate().toEpochDay());
-            int fine = 20 * daysOverDue;
-            transaction.setFineAmount(fine);
+        try {
+            bookList = bookService.search(
+                    SearchBookRequest.builder()
+                            .searchKey("name")
+                            .searchValue(bookName)
+                            .operator("=")
+                            .build()
+            );
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            throw new Exception("Book not found");
         }
 
-        transaction.setBook(book);
-        transaction.setIssued(false);
-        transaction.setCard(null);
-        transaction.setReturned(true);
-        transaction.setStatus("book is returned");
-        transactionRepository.save(transaction);
+        // Validations
+        if(bookList.isEmpty()) {
+            throw new Exception("Book not available or not found");
+        }
+
+        Student student = studentService.get(studentId);
+
+        if(student.getBookList()!=null && student.getBookList().size()>=maxBooksForIssuance) {
+            throw new Exception("Book limit Reached");
+        }
+
+        Book book = bookList.get(0);
+
+        Transaction transaction = Transaction.builder()
+                .externalTxnId(UUID.randomUUID().toString())
+                .transactionType(TransactionType.ISSUE)
+                .book(book)
+                .student(student)
+                .transactionStatus(TransactionStatus.PENDING)
+                .build();
+
+        try {
+            book.setStudent(student);
+            // Function Pending for Assignment bookService.ass
+            bookService.assignBookToStudent(book, student);
+            transaction.setTransactionStatus(TransactionStatus.SUCCESS);
+        }catch (Exception e) {
+            // TODO: handle exception
+            transaction.setTransactionStatus(TransactionStatus.FAILED);
+
+        }finally {
+            return transactionRepository.save(transaction).getExternalTxnId();
+        }
+
     }
 
-    public Transaction getTransactionDetails(int id) throws TransactionException {
-        return transactionRepository.findById(id)
-                .orElseThrow(()-> new TransactionException("Transaction id is not found"));
-    }
+    public String returnBook(int bookId,int studentId) throws Exception {
+        Book book;
 
-    public List<Transaction> getDetailsByBookId(int bookId) {
-        List<Transaction> transactionList;
-        Optional<Book> book = bookRepository.findById(bookId);
-        transactionList = transactionRepository.findByBook(book);
-        return transactionList;
-    }
+        try {
+            book = bookService.search(SearchBookRequest.builder().searchKey("id").searchValue(String.valueOf(bookId)).build()).get(0);
+        }catch (Exception e) {
+            // TODO: handle exception
+            throw new Exception("Not able to fetch the book details.");
+        }
 
-    public List<Transaction> getDetailsByCardId(int cardId) {
-        List<Transaction> transactionList;
-        Optional<Card> card = cardRepository.findById(cardId);
-        transactionList = transactionRepository.findByCard(card);
-        return transactionList;
+        if(book.getStudent()==null || book.getStudent().getStudentId() != studentId) {
+            throw new Exception("Book is not assigned to the student");
+        }
+
+        Student student = studentService.get(studentId);
+
+        Transaction transaction = Transaction.builder()
+                .externalTxnId(UUID.randomUUID().toString())
+                .transactionType(TransactionType.RETURN)
+                .book(book)
+                .student(student)
+                .transactionStatus(TransactionStatus.PENDING)
+                .build();
+        transaction = transactionRepository.save(transaction);
+
+
+        Transaction issueTransaction = transactionRepository.findTopByStudentAndBookAndTransactionTypeAndTransactionStatusOrderByTransactionTimeDesc(student, book, TransactionType.ISSUE, TransactionStatus.SUCCESS);
+
+
+        // Logic for fine calc
+        long issueTxnInMillis = issueTransaction.getTransactionTime().getTime();
+        long currentTimeInMillis = System.currentTimeMillis();
+
+        long timeDifferInMillis = currentTimeInMillis-issueTxnInMillis;
+
+        long timeDifferInDays = TimeUnit.DAYS.convert(timeDifferInMillis, TimeUnit.MILLISECONDS);
+
+        Double fine = 0.0;
+
+        if(timeDifferInDays>numberOfDaysForIssuance) {
+            fine = (timeDifferInDays-numberOfDaysForIssuance)*1.0;
+
+        }
+
+        try{
+            book.setStudent(null);
+            bookService.unassignBookFromStudent(book);
+
+            transaction.setTransactionStatus(TransactionStatus.SUCCESS);
+            return transaction.getExternalTxnId();
+        }catch (Exception e) {
+            // TODO: handle exception
+            transaction.setTransactionStatus(TransactionStatus.FAILED);
+
+        }finally {
+            transaction.setFineAmount(fine);
+            return transactionRepository.save(transaction).getExternalTxnId();
+        }
+
     }
 }

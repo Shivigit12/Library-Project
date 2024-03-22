@@ -1,0 +1,18 @@
+
+b	java:S1120"FDefine and throw a dedicated exception instead of using a generic one.(İŞ•†8Ú¹˜Óå1
+b	java:S1125"FDefine and throw a dedicated exception instead of using a generic one.(¬‰Ç8Ú¹˜Óå1
+g	java:S112;"FDefine and throw a dedicated exception instead of using a generic one.(Á¬¸Ãúÿÿÿÿ8Û¹˜Óå1
+b	java:S112^"FDefine and throw a dedicated exception instead of using a generic one.(€±ü¾8Ü¹˜Óå1
+g	java:S112b"FDefine and throw a dedicated exception instead of using a generic one.(¬şÿÿÿÿ8Ü¹˜Óå1
+R
+java:S1143R"5Remove this return statement from this finally block.(šã­á8à¹˜Óå1
+S
+java:S1143"5Remove this return statement from this finally block.(šã­á8à¹˜Óå1
+T
+java:S1135/"2Complete the task associated to this TODO comment.(ÕÌ®şÿÿÿÿ8ü¹˜Óå1
+O
+java:S1135N"2Complete the task associated to this TODO comment.(‡ñÅ¼8‚º˜Óå1
+O
+java:S1135]"2Complete the task associated to this TODO comment.(‡ñÅ¼8„º˜Óå1
+P
+java:S1135Š"2Complete the task associated to this TODO comment.(‡ñÅ¼8º˜Óå1

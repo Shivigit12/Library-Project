@@ -1,5 +1,6 @@
 package org.example.service;
 
+import org.example.dto.CreateStudentRequest;
 import org.example.entity.Student;
 import org.example.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +18,12 @@ public class StudentService {
         Optional<Student> existingStudent = studentRepository.findByEmail(email);
         return existingStudent.isPresent();
     }
-    public void create(Student student) {
-        studentRepository.findById(student.getStudentId());
-        studentRepository.save(student);
+    public Student create(CreateStudentRequest createStudentRequest) {
+        Student student = createStudentRequest.to();
+        return studentRepository.save(student);
+    }
+    public Student get(int studentId) {
+        return studentRepository.findById(studentId).orElse(null);
     }
 
     public List<Student> getAll() {
@@ -45,4 +49,6 @@ public class StudentService {
         studentRepository.deleteById(id);
 
     }
+
+
 }
