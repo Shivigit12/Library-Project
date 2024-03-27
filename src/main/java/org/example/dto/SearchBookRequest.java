@@ -21,8 +21,8 @@ public class SearchBookRequest {
     private static Set<String> allowedKeys = new HashSet<>();
     private static HashMap<String, List<String>> allowedOperatorMap = new HashMap<>();
     SearchBookRequest() {
-        allowedKeys.addAll(Arrays.asList("name", "authorName", "genre", "pages", "id"));
-        allowedOperatorMap.put("name", Arrays.asList("=", "like"));
+        allowedKeys.addAll(Arrays.asList("bookName", "authorName", "genre", "pages", "id"));
+        allowedOperatorMap.put("bookName", Arrays.asList("=", "like"));
         allowedOperatorMap.put("authorName", Arrays.asList("="));
         allowedOperatorMap.put("pages", Arrays.asList("=", "<=", ">=", ">", "<"));
         allowedOperatorMap.put("genre", Arrays.asList("="));
@@ -31,7 +31,7 @@ public class SearchBookRequest {
     public boolean validate() {
         if(!allowedKeys.contains(searchKey))
             return false;
-        List<String> validOperators = allowedOperatorMap.get(this.allowedKeys);
+        List<String> validOperators = allowedOperatorMap.get(this.searchKey);
         if(!validOperators.contains(this.operator))
             return false;
         return true;

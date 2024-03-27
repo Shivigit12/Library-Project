@@ -15,12 +15,12 @@ import java.util.Optional;
 
 @Repository
 public interface BookRepository extends JpaRepository<Book, Integer> {
-    @Query("select b from Book b where b.name like '%?1'")
+//    @Query("select b from Book b where b.name =?1")
     public List<Book> findByName(String name);
-    @Query("select b from Book b where genre = ?1")
+//    @Query("select b from Book b where genre = ?1")
     public List<Book> findByGenre(Genre genre);
-    @Query("select b from Book b where genre = ?1")
-    public List<Book> findByGenreString(String genre);
+//    @Query("select b from Book b where genre = ?1")
+//    public List<Book> findByGenreString(String genre);
     @Modifying // for DML support
     @Transactional // for updating any data
     @Query("update Book b set b.student = ?2 where b.id = ?1 and b.student is null")

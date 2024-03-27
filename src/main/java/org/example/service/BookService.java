@@ -42,7 +42,7 @@ public class BookService {
         if(!isValidRequest)
             throw new Exception("Invalid request");
         switch (searchBookRequest.getSearchKey()) {
-            case "name":
+            case "bookName":
                 return bookRepository.findByName(searchBookRequest.getSearchValue());
             case "genre":
                 return bookRepository.findByGenre(Genre.valueOf(searchBookRequest.getSearchValue()));

@@ -14,7 +14,7 @@ public class TransactionController {
     TransactionService transactionService;
 
     @PostMapping("/issueBook")
-    public ResponseEntity<String> issueBook(@RequestParam("name") String bookName, @RequestParam("studentId")int studentId) throws Exception {
+    public ResponseEntity<String> issueBook(@RequestParam("bookName") String bookName, @RequestParam("studentId")int studentId) throws Exception {
         transactionService.issueBooks(bookName, studentId);
         return new ResponseEntity<>("Book has been issued",HttpStatus.OK);
     }

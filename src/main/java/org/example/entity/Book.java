@@ -43,7 +43,8 @@ public class Book {
     private Date createdOn;
     @UpdateTimestamp
     private Date updatedOn;
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "book")
     @JsonManagedReference
     private List<Transaction> transactions;
     @ManyToOne

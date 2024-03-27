@@ -16,6 +16,7 @@ import java.util.List;
 public class BookController {
     @Autowired
     private BookService bookService;
+    @GetMapping("/search")
     public List<Book> getBooksBySearching(@RequestBody SearchBookRequest searchBookRequest) throws Exception {
         return bookService.search(searchBookRequest);
     }
