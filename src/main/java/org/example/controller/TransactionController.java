@@ -1,4 +1,5 @@
 package org.example.controller;
+import org.example.exception.BookNotFoundException;
 import org.example.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,12 +15,12 @@ public class TransactionController {
     TransactionService transactionService;
 
     @PostMapping("/issueBook")
-    public ResponseEntity<String> issueBook(@RequestParam("name") String bookName, @RequestParam("studentId")int studentId) throws Exception {
+    public ResponseEntity<String> issueBook(@RequestParam("bookName") String bookName, @RequestParam("studentId")int studentId) throws BookNotFoundException, Exception {
         transactionService.issueBooks(bookName, studentId);
         return new ResponseEntity<>("Book has been issued",HttpStatus.OK);
     }
     @PostMapping("/returnBook")
-    public ResponseEntity<String> returnBook(@RequestParam("bookId") int bookId, @RequestParam("studentId")int studentId) throws Exception {
+    public ResponseEntity<String> returnBook(@RequestParam("bookId") int bookId, @RequestParam("studentId")int studentId) throws BookNotFoundException, Exception {
         transactionService.returnBook(bookId, studentId);
         return new ResponseEntity<>(bookId+" "+studentId+" ", HttpStatus.OK);
     }

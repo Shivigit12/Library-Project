@@ -6,6 +6,7 @@ import org.example.entity.Author;
 import org.example.entity.Book;
 import org.example.entity.Genre;
 import org.example.entity.Student;
+import org.example.exception.BookNotFoundException;
 import org.example.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,12 +38,12 @@ public class BookService {
     id
      */
 
-    public List<Book> search(SearchBookRequest searchBookRequest) throws Exception{
+    public List<Book> search(SearchBookRequest searchBookRequest) throws BookNotFoundException, Exception{
         boolean isValidRequest = searchBookRequest.validate();
         if(!isValidRequest)
             throw new Exception("Invalid request");
         switch (searchBookRequest.getSearchKey()) {
-            case "name":
+            case "bookName":
                 return bookRepository.findByName(searchBookRequest.getSearchValue());
             case "genre":
                 return bookRepository.findByGenre(Genre.valueOf(searchBookRequest.getSearchValue()));
@@ -50,7 +51,7 @@ public class BookService {
                 Book book = bookRepository.findById(Integer.parseInt(searchBookRequest.getSearchValue())).orElse(null);
                 return Arrays.asList(book);
             default:
-                throw new Exception("Invalid search key");
+                throw new BookNotFoundException("No Book search key found");
         }
     }
 //    public List<Book> search( String key,  String value) throws Exception{
@@ -71,7 +72,7 @@ public class BookService {
 //        return book1.isPresent();
 //    }
 
-    public Book addBook(CreateBookRequest createBookRequest) {
+    public Book addBook(CreateBookRequest createBookRequest) throws BookNotFoundException{
         Book book = createBookRequest.to();
         Author author = authorService.createOrGet(book.getAuthor());
         book.setAuthor(author);
@@ -80,8 +81,10 @@ public class BookService {
 
 
 
-    public Book deleteTheBook(int id) {
+    public Book deleteTheBook(int id) throws BookNotFoundException {
         Book book = bookRepository.findById(id).orElse(null);
+        if(book == null)
+            throw new BookNotFoundException("Book id is already deleted or not present");
         bookRepository.deleteById(id);
         return book;
     }

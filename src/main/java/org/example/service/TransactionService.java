@@ -38,7 +38,7 @@ public class TransactionService {
         try {
             bookList = bookService.search(
                     SearchBookRequest.builder()
-                            .searchKey("name")
+                            .searchKey("bookName")
                             .searchValue(bookName)
                             .operator("=")
                             .build()
@@ -55,7 +55,7 @@ public class TransactionService {
 
         Student student = studentService.get(studentId);
 
-        if(student.getBookList()!=null && student.getBookList().size()>=maxBooksForIssuance) {
+        if(student.getBookList() != null && student.getBookList().size() >= maxBooksForIssuance) {
             throw new Exception("Book limit Reached");
         }
 
@@ -84,17 +84,17 @@ public class TransactionService {
 
     }
 
-    public String returnBook(int bookId,int studentId) throws Exception {
+    public String returnBook(int bookId, int studentId) throws Exception {
         Book book;
 
         try {
-            book = bookService.search(SearchBookRequest.builder().searchKey("id").searchValue(String.valueOf(bookId)).build()).get(0);
+            book = bookService.search(SearchBookRequest.builder().searchKey("id").searchValue(String.valueOf(bookId)).operator("=").build()).get(0);
         }catch (Exception e) {
             // TODO: handle exception
             throw new Exception("Not able to fetch the book details.");
         }
 
-        if(book.getStudent()==null || book.getStudent().getStudentId() != studentId) {
+        if(book.getStudent() == null || book.getStudent().getStudentId() != studentId) {
             throw new Exception("Book is not assigned to the student");
         }
 
@@ -113,18 +113,18 @@ public class TransactionService {
         Transaction issueTransaction = transactionRepository.findTopByStudentAndBookAndTransactionTypeAndTransactionStatusOrderByTransactionTimeDesc(student, book, TransactionType.ISSUE, TransactionStatus.SUCCESS);
 
 
-        // Logic for fine calc
+        // Logic for fine calculation
         long issueTxnInMillis = issueTransaction.getTransactionTime().getTime();
         long currentTimeInMillis = System.currentTimeMillis();
 
-        long timeDifferInMillis = currentTimeInMillis-issueTxnInMillis;
+        long timeDifferInMillis = currentTimeInMillis - issueTxnInMillis;
 
         long timeDifferInDays = TimeUnit.DAYS.convert(timeDifferInMillis, TimeUnit.MILLISECONDS);
 
         Double fine = 0.0;
 
-        if(timeDifferInDays>numberOfDaysForIssuance) {
-            fine = (timeDifferInDays-numberOfDaysForIssuance)*1.0;
+        if(timeDifferInDays > numberOfDaysForIssuance) {
+            fine = (timeDifferInDays - numberOfDaysForIssuance) * 1.0;
 
         }
 

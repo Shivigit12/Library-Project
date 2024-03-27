@@ -4,12 +4,14 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.*;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class SearchBookRequest {
     @NotBlank
@@ -18,21 +20,21 @@ public class SearchBookRequest {
     private String searchValue;
     @NotBlank
     private String operator;
-    private static Set<String> allowedKeys = new HashSet<>();
-    private static HashMap<String, List<String>> allowedOperatorMap = new HashMap<>();
-    SearchBookRequest() {
-        allowedKeys.addAll(Arrays.asList("name", "authorName", "genre", "pages", "id"));
-        allowedOperatorMap.put("name", Arrays.asList("=", "like"));
-        allowedOperatorMap.put("authorName", Arrays.asList("="));
-        allowedOperatorMap.put("pages", Arrays.asList("=", "<=", ">=", ">", "<"));
-        allowedOperatorMap.put("genre", Arrays.asList("="));
-        allowedOperatorMap.put("id", Arrays.asList("="));
-    }
+
+    private static final Set<String> ALLOWED_KEYS = Set.of("bookName", "authorName", "genre", "pages", "id");
+    private static final Map<String, Set<String>> ALLOWED_OPERATOR_MAP = Map.of(
+            "bookName", Set.of("=", "like"),
+            "authorName", Set.of("="),
+            "pages", Set.of("=", "<=", ">=", ">", "<"),
+            "genre", Set.of("="),
+            "id", Set.of("=")
+    );
+
     public boolean validate() {
-        if(!allowedKeys.contains(searchKey))
+        if(!ALLOWED_KEYS.contains(searchKey))
             return false;
-        List<String> validOperators = allowedOperatorMap.get(this.allowedKeys);
-        if(!validOperators.contains(this.operator))
+        Set<String> validOperators = ALLOWED_OPERATOR_MAP.get(this.searchKey);
+        if(validOperators == null || !validOperators.contains(this.operator))
             return false;
         return true;
     }

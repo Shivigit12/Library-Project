@@ -1,6 +1,7 @@
 package org.example.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.example.entity.Author;
 import org.example.entity.Book;
@@ -14,7 +15,7 @@ import org.example.entity.Genre;
 public class CreateBookRequest {
     @NotBlank
     private String name;
-    @NotBlank
+    @NotNull
     private Genre genre;
     private int pages;
     @NotBlank

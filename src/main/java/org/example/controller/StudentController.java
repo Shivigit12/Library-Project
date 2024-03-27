@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import jakarta.validation.Valid;
 import org.example.dto.CreateStudentRequest;
 import org.example.entity.Student;
 import org.example.service.StudentService;
@@ -17,10 +18,8 @@ public class StudentController {
     StudentService studentService;
 
     @PostMapping("/create")
-    public ResponseEntity createStudent(@RequestBody CreateStudentRequest createStudentRequest) {
-        if(createStudentRequest == null) {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        } else if(studentService.exists(createStudentRequest.getContact())) {
+    public ResponseEntity<?> createStudent(@Valid @RequestBody CreateStudentRequest createStudentRequest) {
+        if(studentService.exists(createStudentRequest.getContact())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Student already exists");
         }
         studentService.create(createStudentRequest);
@@ -36,14 +35,14 @@ public class StudentController {
         return studentService.getAll();
     }
     @PutMapping("/update")
-    public ResponseEntity updateStudent(@RequestBody Student student) {
+    public ResponseEntity<?> updateStudent(@RequestBody Student student) {
         studentService.updateStudent(student);
         return new ResponseEntity<>("Student updated", HttpStatus.OK);
 
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity deleteStudent(@PathVariable int id) {
+    public ResponseEntity<?> deleteStudent(@PathVariable int id) {
         studentService.deleteStudent(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

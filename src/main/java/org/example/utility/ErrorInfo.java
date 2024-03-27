@@ -1,10 +1,13 @@
 package org.example.utility;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 public class ErrorInfo {
     private String errorMessage;
     private Integer errorCode;
+    private String errorKey;
+    private Map<String, String> fieldErrors;
     private LocalDateTime timeStamp;
 
     public String getErrorMessage() {
@@ -21,6 +24,22 @@ public class ErrorInfo {
 
     public void setErrorCode(Integer errorCode) {
         this.errorCode = errorCode;
+    }
+
+    public String getErrorKey() {
+        return errorKey;
+    }
+
+    public void setErrorKey(String errorKey) {
+        this.errorKey = errorKey;
+    }
+
+    public Map<String, String> getFieldErrors() {
+        return fieldErrors;
+    }
+
+    public void setFieldErrors(Map<String, String> fieldErrors) {
+        this.fieldErrors = fieldErrors;
     }
 
     public LocalDateTime getTimeStamp() {

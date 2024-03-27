@@ -13,9 +13,8 @@ import java.util.Optional;
 public class StudentService {
     @Autowired
     StudentRepository studentRepository;
-    public boolean exists(String email) {
-        // Check if student with the given ID exists in the database
-        Optional<Student> existingStudent = studentRepository.findByEmail(email);
+    public boolean exists(String contact) {
+        Optional<Student> existingStudent = studentRepository.findByPhoneNumber(contact);
         return existingStudent.isPresent();
     }
     public Student create(CreateStudentRequest createStudentRequest) {
