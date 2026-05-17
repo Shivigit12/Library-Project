@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import org.example.exception.BaseException;
+import org.example.exception.BookNotFoundException;
 import org.example.exception.CardNotFoundException;
 import org.example.exception.TransactionException;
 import org.example.utility.ErrorInfo;
@@ -81,6 +82,16 @@ public class ExceptionControllerAdvice {
     public ResponseEntity<ErrorInfo> cardExceptionHandler(CardNotFoundException exception) {
         ErrorInfo error = new ErrorInfo();
         error.setErrorMessage("Card is not active");
+        error.setErrorCode(HttpStatus.NOT_FOUND.value());
+        error.setErrorKey(exception.getErrorCode());
+        error.setTimeStamp(LocalDateTime.now());
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(BookNotFoundException.class)
+    public ResponseEntity<ErrorInfo> bookExceptionhandler(BookNotFoundException exception) {
+        ErrorInfo error = new ErrorInfo();
+        error.setErrorMessage("No book available");
         error.setErrorCode(HttpStatus.NOT_FOUND.value());
         error.setErrorKey(exception.getErrorCode());
         error.setTimeStamp(LocalDateTime.now());

@@ -21,7 +21,12 @@ public class BookService {
     @Autowired
     private AuthorService authorService;
     public List<Book> getAllBooks() {
-        return bookRepository.findAll();
+        List<Book> responseBookList = null;
+        responseBookList = bookRepository.findAll();
+        if(responseBookList.isEmpty()) {
+            throw new BookNotFoundException("No book Found");
+        }
+        return responseBookList;
     }
     public void assignBookToStudent(Book book, Student student){
         bookRepository.assignBookToStudent(book.getId(), student);

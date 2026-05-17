@@ -43,8 +43,10 @@ public class BookController {
     }
 
     @GetMapping("/getAllBooks")
-    public List<Book> getBooks() {
-        return bookService.getAllBooks();
+    public List<Book> getBooks() throws BookNotFoundException {
+        List<Book> responseBookList = null;
+        responseBookList = bookService.getAllBooks();
+        return responseBookList;
     }
     @PostMapping("/create")
     public ResponseEntity<?> createBook(@Valid @RequestBody CreateBookRequest createBookRequest) {
